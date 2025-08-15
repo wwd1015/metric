@@ -1,0 +1,15 @@
+category: demo
+data_sources: []
+description: Simple mathematical calculations with visualization
+id: demo_simple_calculator
+inputs:
+- description: Input value for calculation
+  name: value
+  required: true
+  type: float
+name: Simple Calculator
+outputs:
+- description: Calculated result
+  name: result
+  type: float
+template: simple

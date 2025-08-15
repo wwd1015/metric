@@ -1,0 +1,73 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "metrics-hub"
+version = "1.0.0"
+description = "Streamlined metric development and deployment package with rich outputs"
+readme = "README.md"
+authors = [
+    {name = "Metrics Hub Team", email = "team@metricshub.dev"},
+]
+license = {text = "MIT"}
+requires-python = ">=3.11"
+keywords = ["metrics", "monitoring", "analytics", "plotly", "dashboard"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+dependencies = [
+    "pandas>=2.0.0",
+    "numpy>=1.24.0",
+    "pyyaml>=6.0",
+    "fastapi>=0.100.0",
+    "uvicorn>=0.22.0",
+    "pydantic>=2.0.0",
+    "plotly>=5.14.0",
+    "click>=8.1.0",
+]
+
+[project.optional-dependencies]
+dashboard = ["dash>=2.14.0", "nbformat>=4.2.0"]
+database = ["sqlalchemy>=2.0.0", "psycopg2-binary>=2.9.0"]
+api = ["requests>=2.31.0"]
+dev = [
+    "pytest>=7.3.0",
+    "pytest-asyncio>=0.21.0",
+    "black>=23.3.0",
+    "ruff>=0.0.270",
+]
+all = ["metrics-hub[dashboard,database,api,dev]"]
+
+[project.urls]
+Homepage = "https://github.com/yourusername/metrics-hub"
+Repository = "https://github.com/yourusername/metrics-hub"
+Documentation = "https://metrics-hub.readthedocs.io/"
+
+[project.scripts]
+metrics-hub = "metrics_hub.scaffolding.cli:cli"
+
+[tool.hatch.build.targets.wheel]
+packages = ["metrics_hub"]
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+
+[tool.ruff]
+target-version = "py311"
+line-length = 88
+select = ["E", "W", "F", "I", "B", "C4", "UP"]
+ignore = ["E501", "B008"]
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+testpaths = ["tests"]
+asyncio_mode = "auto"
