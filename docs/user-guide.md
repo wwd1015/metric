@@ -80,12 +80,12 @@ data_frames = treatment.load_many()
 
 transactions = data_frames["transactions"]
 if pl is not None and isinstance(transactions, pl.DataFrame):
-    input_sequence = transactions["amount"].to_list()
+    input_frame = transactions.select([pl.col("amount").alias("value")])
 else:
     transactions = pd.DataFrame(transactions)
-    input_sequence = transactions["amount"].tolist()
+    input_frame = transactions[["amount"]].rename(columns={"amount": "value"})
 
-call_metric("demo_simple_calculator", input_data=input_sequence)
+call_metric("demo_simple_calculator", input_data=input_frame)
 ```
 
 Polars support is optional. Install with `pip install "cap[performance]"` to enable the high-performance backend and ensure `polars` imports succeed at runtime. If the extra is missing, CAP gracefully falls back to pandas.

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 140" role="img" aria-labelledby="title desc">
+  <title id="title">CAP Logo</title>
+  <desc id="desc">Rounded banner with emblem and CAP wordmark for Commercial Analytical Platform.</desc>
+  <defs>
+    <linearGradient id="grad-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a" />
+      <stop offset="100%" stop-color="#1e293b" />
+    </linearGradient>
+    <linearGradient id="grad-emblem" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2563eb" />
+      <stop offset="100%" stop-color="#06b6d4" />
+    </linearGradient>
+    <linearGradient id="grad-spark" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#f97316" />
+      <stop offset="100%" stop-color="#ec4899" />
+    </linearGradient>
+  </defs>
+
+  <rect x="8" y="16" width="344" height="108" rx="24" fill="url(#grad-bg)" />
+
+  <g transform="translate(84 70)">
+    <circle r="46" fill="#0b1226" />
+    <circle r="40" fill="url(#grad-emblem)" />
+    <path d="M-16 -8c0-11 9-20 20-20s20 9 20 20-9 20-20 20h-6v20h-14zm20-30c-17 0-30 13-30 30v50h22v-18h8c17 0 30-13 30-30s-13-32-30-32z" fill="#ffffff" opacity="0.94" />
+    <path d="M10 -34l9 10 16-5" fill="none" stroke="url(#grad-spark)" stroke-width="4" stroke-linecap="round" />
+    <circle cx="22" cy="-38" r="5" fill="#ffffff" />
+  </g>
+
+  <g fill="#ffffff" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-weight="600" letter-spacing="3">
+    <text x="158" y="86" font-size="50">CAP</text>
+  </g>
+  <g fill="#e2e8f0" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif">
+    <text x="158" y="108" font-size="18" letter-spacing="1">Commercial Analytical Platform</text>
+  </g>
+
+  <path d="M158 58h100" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" opacity="0.4" />
+  <path d="M158 118h78" stroke="#f97316" stroke-width="2" stroke-linecap="round" opacity="0.35" />
+</svg>

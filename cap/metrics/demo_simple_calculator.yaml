@@ -6,8 +6,8 @@ template: simple
 
 inputs:
   - name: input_data
-    description: Primary numeric sequence provided to the calculator
-    type: array
+    description: DataFrame containing a numeric `value` column for analysis
+    type: dataframe
     required: true
   - name: operation
     description: Operation to highlight (all, sum, mean, median, std, min, max, count)

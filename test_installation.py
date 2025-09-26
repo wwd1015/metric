@@ -69,7 +69,9 @@ def test_metric_calculation():
 
         kwargs = {}
         if metric_id == "demo_simple_calculator":
-            kwargs = {"input_data": [1, 2, 3], "operation": "sum"}
+            import pandas as pd
+
+            kwargs = {"input_data": pd.DataFrame({"value": [1, 2, 3]}), "operation": "sum"}
 
         result = call_metric(metric_id, **kwargs)
         

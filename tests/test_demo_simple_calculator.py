@@ -5,6 +5,7 @@ Generated using the cap scaffolding system.
 Uses pytest framework exclusively for all testing needs.
 """
 
+import pandas as pd
 import pytest
 from unittest.mock import patch
 
@@ -17,7 +18,8 @@ class TestCalculatesimplecalculator:
     @pytest.fixture
     def sample_inputs(self):
         """Provide sample inputs for testing."""
-        return {"input_data": [1, 2, 3, 4, 5], "operation": "all"}
+        df = pd.DataFrame({"value": [1, 2, 3, 4, 5]})
+        return {"input_data": df, "operation": "all"}
 
     def test_basic_calculation(self, sample_inputs):
         """Test basic metric calculation with valid inputs."""
@@ -31,10 +33,10 @@ class TestCalculatesimplecalculator:
     def test_input_validation(self):
         """Test input validation with pytest.raises."""
         with pytest.raises(ValueError):
-            calculate_simple_calculator(input_data=[])
+            calculate_simple_calculator(input_data=pd.DataFrame(columns=["value"]))
 
         with pytest.raises(ValueError):
-            calculate_simple_calculator(input_data=[1, "a", 3])
+            calculate_simple_calculator(input_data=pd.DataFrame({"value": [1, "a", 3]}))
 
     @pytest.mark.parametrize(
         "operation,expected",
@@ -46,20 +48,23 @@ class TestCalculatesimplecalculator:
     )
     def test_operation_filtering(self, operation, expected):
         """Verify that single-operation summaries are respected."""
-        result = calculate_simple_calculator(input_data=[1, 2, 3], operation=operation)
+        df = pd.DataFrame({"value": [1, 2, 3]})
+        result = calculate_simple_calculator(input_data=df, operation=operation)
         assert list(result["summary_stats"].keys()) == [operation]
         assert pytest.approx(result["summary_stats"][operation], rel=1e-6) == expected
 
     def test_invalid_operation(self):
         """Errors if unsupported operation requested."""
         with pytest.raises(ValueError):
-            calculate_simple_calculator(input_data=[1, 2, 3], operation="median_absolute")
+            df = pd.DataFrame({"value": [1, 2, 3]})
+            calculate_simple_calculator(input_data=df, operation="median_absolute")
 
     def test_error_handling_and_logging(self):
         """Logs errors before re-raising wrapped exceptions."""
         with patch("cap.metrics.demo_simple_calculator.logger") as mock_logger:
             with pytest.raises(ValueError):
-                calculate_simple_calculator(input_data=["x", "y"])  # non-numeric
+                df = pd.DataFrame({"value": ["x", "y"]})
+                calculate_simple_calculator(input_data=df)  # non-numeric
             mock_logger.error.assert_called()
 
     def test_result_structure(self, sample_inputs):
@@ -124,7 +129,10 @@ class TestIntegration:
             # Test metric calculation endpoint
             test_payload = {
                 "metric_id": "demo_simple_calculator",
-                "inputs": {"input_data": [1, 2, 3], "operation": "sum"},
+                "inputs": {
+                    "input_data": [{"value": 1}, {"value": 2}, {"value": 3}],
+                    "operation": "sum",
+                },
                 "output_format": "json",
             }
             

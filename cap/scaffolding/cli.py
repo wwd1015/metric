@@ -339,9 +339,9 @@ def _get_template_config(
             inputs = [
                 {
                     'name': 'input_data',
-                    'type': 'array',
+                    'type': 'dataframe',
                     'required': True,
-                    'description': 'Primary numeric sequence provided to the calculator',
+                    'description': "DataFrame containing a numeric 'value' column for the calculation",
                 },
                 {
                     'name': 'operation',
@@ -876,23 +876,29 @@ def _generate_simple_body(inputs: List[Dict], outputs: List[Dict], complex_metri
         return '''        if input_data is None:
             raise ValueError("input_data is required")
 
-        if pl is not None and hasattr(input_data, "to_list"):
-            sequence = [float(x) for x in input_data.to_list()]
+        if pl is not None and isinstance(input_data, pl.DataFrame):
+            df = input_data.to_pandas()
+        elif isinstance(input_data, pd.DataFrame):
+            df = input_data.copy()
         else:
-            sequence = [float(x) for x in list(input_data)]
+            df = pd.DataFrame(input_data)
 
-        if not sequence:
-            raise ValueError("input_data must contain at least one value")
+        if df.empty:
+            raise ValueError("input_data must contain at least one row")
 
-        series = pd.Series(sequence, name="Value")
+        if "value" not in df.columns:
+            raise ValueError("input_data must include a 'value' column")
+
+        series = df["value"].astype(float)
+        arr = series.to_numpy()
         calculations = {
-            "sum": float(series.sum()),
-            "mean": float(series.mean()),
-            "median": float(series.median()),
-            "std": float(series.std(ddof=0)),
-            "min": float(series.min()),
-            "max": float(series.max()),
-            "count": int(series.count())
+            "sum": float(arr.sum()),
+            "mean": float(arr.mean()),
+            "median": float(np.median(arr)),
+            "std": float(np.std(arr)),
+            "min": float(arr.min()),
+            "max": float(arr.max()),
+            "count": int(len(arr))
         }
 
         allowed_operations = [*sorted(calculations.keys()), "all"]
@@ -901,7 +907,14 @@ def _generate_simple_body(inputs: List[Dict], outputs: List[Dict], complex_metri
 
         summary_stats = calculations if operation == "all" else {operation: calculations[operation]}
 
-        calculations_table = series.reset_index().rename(columns={"index": "Index"})
+        calculations_table = pd.DataFrame(
+            {
+                "Index": range(len(arr)),
+                "Value": arr,
+                "Squared": arr**2,
+                "Cumulative_Sum": np.cumsum(arr),
+            }
+        )
         chart = px.line(calculations_table, x="Index", y="Value", title="Number Sequence")
 
         result = {

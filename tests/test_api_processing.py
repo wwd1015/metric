@@ -100,7 +100,9 @@ def test_generate_html_output_contains_sections(monkeypatch):
 
     monkeypatch.setattr("cap.api.get_registry", lambda: DummyRegistry())
 
-    html = _generate_html_output("demo", df, {"input_data": [1, 2, 3]})
+    from pandas import DataFrame
+
+    html = _generate_html_output("demo", df, {"input_data": DataFrame({"value": [1, 2, 3]})})
     assert "<html" in html.lower()
     assert "Demo metric" in html
     assert "input_data" in html

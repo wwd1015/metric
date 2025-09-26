@@ -68,10 +68,10 @@ interactive notebooks).
 - **`demo_simple_calculator`** – a lightweight demonstration metric that exercises
   defaults, validation, and mixed outputs. Useful for smoke-testing the registry, API,
   dashboard, or data treatment hookups without external data.
-- Signature conventions: metrics accept `input_data` as the first parameter and expose
-  additional knobs (for example `operation`) as keyword-only arguments. YAML `inputs`
-  mirror those names so generated CLIs, APIs, and defaults stay aligned with the
-  implementation.
+- Signature conventions: metrics accept `input_data` as the first parameter (a DataFrame
+  with a canonical `value` column for numeric analysis) and expose additional knobs (for
+  example `operation`) as keyword-only arguments. YAML `inputs` mirror those names so
+  generated CLIs, APIs, and defaults stay aligned with the implementation.
 
 ## 5. Scaffolded Developer Experience
 

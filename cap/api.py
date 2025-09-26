@@ -283,6 +283,17 @@ def _convert_query_params(metric_id: str, params: dict) -> dict:
                             inputs[param_name] = [x.strip() for x in value.split(',') if x.strip()]
                     else:
                         inputs[param_name] = value
+                elif param_type == 'dataframe':
+                    if isinstance(value, str):
+                        try:
+                            inputs[param_name] = json.loads(value)
+                        except json.JSONDecodeError:
+                            raise HTTPException(
+                                status_code=400,
+                                detail=f"Invalid JSON for dataframe parameter '{param_name}'",
+                            )
+                    else:
+                        inputs[param_name] = value
                 elif param_type == 'object':
                     if isinstance(value, str):
                         try:
