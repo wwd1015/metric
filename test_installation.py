@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Quick test script to verify Metrics Hub installation and functionality.
+Quick test script to verify Commercial Analytical Platform (CAP) installation and functionality.
 Run this script to ensure everything is working correctly.
 """
 
@@ -11,19 +11,19 @@ def test_imports():
     """Test all major imports."""
     print("🔍 Testing imports...")
     try:
-        import metrics_hub
-        print(f"  ✅ metrics_hub imported successfully (version: {metrics_hub.__version__})")
+        import cap
+        print(f"  ✅ cap imported successfully (version: {cap.__version__})")
         
-        from metrics_hub import register_metric, get_metric, list_metrics, call_metric
+        from cap import register_metric, get_metric, list_metrics, call_metric
         print("  ✅ Core functions imported")
         
-        from metrics_hub.api import create_api_app
+        from cap.api import create_api_app
         print("  ✅ API components imported")
         
-        from metrics_hub.dashboard import create_dashboard_app
+        from cap.dashboard import create_dashboard_app
         print("  ✅ Dashboard components imported")
         
-        from metrics_hub.core import get_registry
+        from cap.core import get_registry
         print("  ✅ Registry components imported")
         
         return True
@@ -36,7 +36,7 @@ def test_registry():
     """Test metric registry functionality."""
     print("\n📊 Testing metric registry...")
     try:
-        from metrics_hub.core import get_registry
+        from cap.core import get_registry
         registry = get_registry()
         
         metrics = registry.list_all()
@@ -56,19 +56,22 @@ def test_metric_calculation():
     """Test calling a metric."""
     print("\n🧪 Testing metric calculation...")
     try:
-        from metrics_hub import call_metric, list_metrics
+        from cap import call_metric, list_metrics
         
         metrics = list_metrics()
         if not metrics:
             print("  ⚠️  No metrics available to test")
             return False
         
-        # Test the first available metric
-        metric_id = metrics[0]['id']
+        metric = metrics[0]
+        metric_id = metric['id']
         print(f"  🧮 Testing metric: {metric_id}")
-        
-        # Call with minimal parameters
-        result = call_metric(metric_id, num_assets=2, time_periods=5)
+
+        kwargs = {}
+        if metric_id == "demo_simple_calculator":
+            kwargs = {"input_data": [1, 2, 3], "operation": "sum"}
+
+        result = call_metric(metric_id, **kwargs)
         
         print(f"  ✅ Metric calculation successful!")
         print(f"  📊 Result keys: {list(result.keys())}")
@@ -87,7 +90,7 @@ def test_api_creation():
     """Test API app creation."""
     print("\n🌐 Testing API creation...")
     try:
-        from metrics_hub.api import create_api_app
+        from cap.api import create_api_app
         app = create_api_app()
         print("  ✅ API app created successfully")
         return True
@@ -100,7 +103,7 @@ def test_dashboard_creation():
     """Test dashboard app creation."""
     print("\n📊 Testing dashboard creation...")
     try:
-        from metrics_hub.dashboard import create_dashboard_app
+        from cap.dashboard import create_dashboard_app
         app = create_dashboard_app()
         print("  ✅ Dashboard app created successfully")
         return True
@@ -111,7 +114,7 @@ def test_dashboard_creation():
 
 def main():
     """Run all tests."""
-    print("🚀 Metrics Hub Installation Test")
+    print("🚀 Commercial Analytical Platform (CAP) Installation Test")
     print("=" * 40)
     
     tests = [
@@ -145,11 +148,11 @@ def main():
     print(f"\n🎯 Overall: {passed}/{len(results)} tests passed")
     
     if passed == len(results):
-        print("\n🎉 All tests passed! Metrics Hub is ready to use.")
+        print("\n🎉 All tests passed! Commercial Analytical Platform (CAP) is ready to use.")
         print("\n🚀 Next steps:")
-        print("  1. Run: python -c \"from metrics_hub.scaffolding.cli import cli; cli()\" list")
-        print("  2. Run: python -c \"from metrics_hub.scaffolding.cli import cli; cli()\" dashboard")
-        print("  3. Try the Jupyter notebook: Metrics_Hub_Demo.ipynb")
+        print("  1. Run: python -c \"from cap.scaffolding.cli import cli; cli()\" list")
+        print("  2. Run: python -c \"from cap.scaffolding.cli import cli; cli()\" dashboard")
+    print("  3. Try the Jupyter notebook: CAP_Demo.ipynb")
     else:
         print("\n⚠️  Some tests failed. Please check the error messages above.")
         sys.exit(1)

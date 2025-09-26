@@ -1,0 +1,29 @@
+id: demo_simple_calculator
+name: Simple Calculator
+description: Simple mathematical calculations with visualization
+category: demo
+template: simple
+
+inputs:
+  - name: input_data
+    description: Primary numeric sequence provided to the calculator
+    type: array
+    required: true
+  - name: operation
+    description: Operation to highlight (all, sum, mean, median, std, min, max, count)
+    type: string
+    required: false
+    default: all
+
+outputs:
+  - name: calculations_table
+    description: Tabular breakdown of calculations
+    type: dataframe
+  - name: visualization
+    description: Trend chart of the provided sequence
+    type: plotly_figure
+  - name: summary_stats
+    description: Summary statistics for the requested operation(s)
+    type: object
+
+data_sources: []

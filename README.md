@@ -1,4 +1,4 @@
-# 📊 Metrics Hub
+# 📊 Commercial Analytical Platform (CAP)
 
 > *Streamlined metric development and deployment package with rich outputs*
 
@@ -7,7 +7,7 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-00a99d.svg)](https://fastapi.tiangolo.com)
 [![Plotly](https://img.shields.io/badge/Plotly-5.14+-3f4f75.svg)](https://plotly.com)
 
-Metrics Hub is a comprehensive Python package for developing, testing, and deploying complex analytics metrics with rich outputs including **DataFrames**, **interactive visualizations**, and **mixed object types**. Built specifically for **Posit Connect** deployment with streamlined development workflows.
+Commercial Analytical Platform (CAP) is a comprehensive Python package for developing, testing, and deploying complex analytics metrics with rich outputs including **DataFrames**, **interactive visualizations**, and **mixed object types**. Built specifically for **Posit Connect** deployment with streamlined development workflows.
 
 ## ✨ Key Features
 
@@ -17,12 +17,14 @@ Metrics Hub is a comprehensive Python package for developing, testing, and deplo
 - 🧪 **Interactive Testing**: Built-in dashboard and API for rapid development
 - 📝 **Auto-Documentation**: YAML-driven configuration with type validation
 - 🔧 **Template System**: Pre-built templates for common metric patterns
+- 🧮 **Data Treatment Layer**: Unified utilities for fetching and transforming metric inputs from files or databases
+- ⚡ **Polars Support**: Optional high-performance backend for bulk CSV/Parquet processing
 
 ## 📦 Package Structure
 
 ```
-📁 metrics-hub/
-├── 📁 metrics_hub/                    # 🏠 Main Package
+📁 cap/
+├── 📁 cap/                    # 🏠 Main Package
 │   ├── 📄 __init__.py                 # 📤 Package Exports
 │   ├── 📄 core.py                     # 🔧 Metric Registry & Management
 │   ├── 📄 api.py                      # 🌐 FastAPI Interface
@@ -40,7 +42,8 @@ Metrics Hub is a comprehensive Python package for developing, testing, and deplo
 ├── 📁 tests/                          # 🧪 Test Suite
 │   └── 📄 test_your_metric.py         # ✅ Generated Tests
 │
-├── 📄 deploy_your_metric.py           # 🚀 Posit Connect Deployment
+├── 📁 deploy/                         # 🚀 Posit Connect Deployment Scripts
+│   └── your_metric.py
 ├── 📄 pyproject.toml                  # ⚙️ Package Configuration
 ├── 📄 requirements.txt                # 📋 Dependencies
 └── 📄 README.md                       # 📖 This File
@@ -52,102 +55,102 @@ Metrics Hub is a comprehensive Python package for developing, testing, and deplo
 
 ```bash
 # Basic installation
-pip install metrics-hub
+pip install cap
 
 # With all features (recommended for development)
-pip install "metrics-hub[all]"
+pip install "cap[all]"
 
 # Production deployment only
-pip install "metrics-hub[api]"
+pip install "cap[api]"
+
+# Add Polars-backed data treatment
+pip install "cap[performance]"
 ```
 
 ### Create Your First Metric
 
 ```bash
-# Generate a new metric with template
-metrics-hub create "Sales Analysis" \
+# 1️⃣  Generate the YAML configuration
+cap create "Sales Analysis" \
     --category financial \
     --description "Monthly sales performance analysis" \
     --template dataframe
 
-# 📁 Generated files:
-#   ├── metrics_hub/metrics/financial_sales_analysis.py
-#   ├── metrics_hub/metrics/financial_sales_analysis.yaml  
+# 2️⃣  Materialise Python/tests/deploy from the YAML when ready
+cap generate financial_sales_analysis --overwrite-tests --overwrite-deploy
+
+# 📁 Generated / updated files:
+#   ├── cap/metrics/financial_sales_analysis.yaml
+#   ├── cap/metrics/financial_sales_analysis.py
 #   ├── tests/test_financial_sales_analysis.py
-#   └── deploy_financial_sales_analysis.py
+#   └── deploy/financial_sales_analysis.py
 ```
 
 ### Implement Your Metric
 
-The generated metric template includes everything you need:
-
-```python
-# metrics_hub/metrics/financial_sales_analysis.py
-from metrics_hub import register_metric
-import pandas as pd
-import plotly.express as px
-
-@register_metric("financial_sales_analysis")
-def calculate_sales_analysis(
-    data_source: str,
-    date_range: dict,
-    filters: dict = None
-) -> dict:
-    """Monthly sales performance analysis."""
-    
-    # Your implementation here
-    df = load_sales_data(data_source, date_range)
-    
-    if filters:
-        df = apply_filters(df, filters)
-    
-    # Create visualization
-    chart = px.line(df, x='date', y='sales', title='Sales Trend')
-    
-    # Calculate summary
-    summary = {
-        'total_sales': df['sales'].sum(),
-        'avg_monthly': df['sales'].mean(),
-        'growth_rate': calculate_growth_rate(df)
-    }
-    
-    return {
-        'sales_data': df,           # 📊 DataFrame output
-        'trend_chart': chart,       # 📈 Interactive chart
-        'summary_stats': summary    # 📋 Key metrics
-    }
-```
+Open `cap/metrics/financial_sales_analysis.py` and replace the scaffolded placeholder
+logic with your own between the `# --- CAP USER CODE START/END ---` markers. The CLI
+preserves everything in that block each time you rerun `cap generate`, while refreshing
+the function signature, docstring, and boilerplate derived from the YAML. Configuration
+defaults live next door in the YAML file; keep it in sync with your function signature
+(and rerun `cap generate` whenever you update the schema). The CLI also generates a
+pytest file under `tests/` to get you started and a FastAPI deployment script under
+`deploy/`. Required parameters in the YAML—such as `input_data` for the demo
+calculator—must be supplied when calling the metric from any surface (CLI, API, or
+Python) because no automatic fallback values are injected.
 
 ### Test Interactively
 
 ```bash
 # Launch dashboard for testing
-metrics-hub dashboard
+cap dashboard
 # 🌐 Visit: http://localhost:8050
 
 # Or start API server
-metrics-hub api
+cap api
 # 🌐 Visit: http://localhost:8000/docs
+```
+
+### Orchestrate Metric Inputs
+
+```python
+from cap import CSVSource, SQLAlchemySource, DataTreatment
+
+treatment = DataTreatment({
+    "transactions": CSVSource("./data/transactions.csv"),
+    "reference": SQLAlchemySource(
+        connection_string="snowflake://user:pass@org-account/demo_db/public",
+        query="SELECT code, label FROM reference_dim WHERE is_active = true",
+    ),
+})
+
+treatment.add_transformer("transactions", lambda df: df[df["status"] == "COMPLETE"])
+
+data_frames = treatment.load_many()
 ```
 
 ### Deploy to Posit Connect
 
 ```bash
 # Test deployment locally
-python deploy_financial_sales_analysis.py
+python deploy/financial_sales_analysis.py
 
 # Deploy to Posit Connect
-rsconnect deploy fastapi deploy_financial_sales_analysis.py \
+rsconnect deploy fastapi deploy/financial_sales_analysis.py \
     --account myaccount \
     --title "Sales Analysis API"
 ```
 
 ## 🎯 Use Cases & Templates
 
+Each `cap create` command below writes only the YAML skeleton. Edit the configuration and
+call `cap generate <metric_id>` when you are ready to materialise the Python module,
+tests, and deployment helper.
+
 ### 📊 DataFrame Analytics
 Perfect for data analysis and reporting:
 ```bash
-metrics-hub create "Portfolio Performance" \
+cap create "Portfolio Performance" \
     --template dataframe \
     --category investment
 ```
@@ -155,7 +158,7 @@ metrics-hub create "Portfolio Performance" \
 ### 📈 Interactive Visualizations  
 For dashboard-ready charts:
 ```bash
-metrics-hub create "Market Trends" \
+cap create "Market Trends" \
     --template plotly \
     --category operational
 ```
@@ -163,7 +166,7 @@ metrics-hub create "Market Trends" \
 ### 🔗 Multi-Source Analytics
 For comprehensive analysis:
 ```bash
-metrics-hub create "Risk Assessment" \
+cap create "Risk Assessment" \
     --template multi_source \
     --category risk
 ```
@@ -171,7 +174,7 @@ metrics-hub create "Risk Assessment" \
 ### ⚡ Simple Calculations
 For quick numeric metrics:
 ```bash
-metrics-hub create "KPI Calculator" \
+cap create "KPI Calculator" \
     --template simple \
     --category performance
 ```
@@ -180,7 +183,7 @@ metrics-hub create "KPI Calculator" \
 
 ### Rich Output Types
 
-Metrics Hub supports multiple output formats automatically:
+Commercial Analytical Platform (CAP) supports multiple output formats automatically:
 
 ```python
 # 📊 DataFrame → JSON/HTML/CSV
@@ -224,7 +227,7 @@ GET /calculate/financial_sales_analysis/csv?param1=value1
 YAML configuration drives input validation and documentation:
 
 ```yaml
-# metrics_hub/metrics/financial_sales_analysis.yaml
+# cap/metrics/financial_sales_analysis.yaml
 id: financial_sales_analysis
 name: Sales Analysis
 description: Monthly sales performance analysis
@@ -271,7 +274,7 @@ The built-in dashboard provides:
 - 🐛 **Debug Tools**: Error handling and logging
 
 ```bash
-metrics-hub dashboard --debug
+cap dashboard --debug
 ```
 
 ### API Development
@@ -283,7 +286,7 @@ Test your metrics with the interactive API:
 - 🔄 **Hot Reload**: Development mode with auto-restart
 
 ```bash  
-metrics-hub api --reload
+cap api --reload
 ```
 
 ## 🚀 Deployment Options
@@ -293,9 +296,9 @@ metrics-hub api --reload
 Generated deployment scripts work out-of-the-box:
 
 ```python
-# deploy_your_metric.py
-from metrics_hub.api import create_api_app
-from metrics_hub.metrics.your_metric import calculate_your_metric
+# deploy/your_metric.py
+from cap.api import create_api_app
+from cap.metrics.your_metric import calculate_your_metric
 
 app = create_api_app()
 
@@ -310,17 +313,16 @@ Deploy anywhere with standard FastAPI/Uvicorn:
 # Docker
 FROM python:3.11
 COPY . .
-RUN pip install metrics-hub
-CMD ["uvicorn", "deploy_your_metric:app", "--host", "0.0.0.0"]
+RUN pip install cap
+CMD ["uvicorn", "deploy/your_metric:app", "--host", "0.0.0.0"]
 
 # Kubernetes, Cloud Run, Lambda, etc.
 ```
 
 ## 📚 Documentation
 
-- 📖 **[User Guide](USER_GUIDE.md)**: Comprehensive development guide
-- 🏗️ **[Architecture](ARCHITECTURE.md)**: System design and concepts  
-- 🔧 **[Implementation Guide](IMPLEMENTATION_GUIDE.md)**: Technical details
+- 📖 **[User Guide](docs/user-guide.md)**: Development and deployment workflows
+- 🏗️ **[Architecture](docs/architecture.md)**: System design and extensibility notes
 - 🧪 **[Testing Guide](tests/README.md)**: Testing strategies and examples
 
 ## 🤝 Development Workflow
@@ -337,32 +339,34 @@ graph LR
     D --> B
 ```
 
-1. **📝 Generate**: `metrics-hub create` with appropriate template
-2. **🔧 Implement**: Add your calculation logic and data connections
-3. **🧪 Test**: Use dashboard and API for interactive development
-4. **✅ Validate**: Run generated test suite
-5. **🚀 Deploy**: Use generated deployment script for Posit Connect
+1. **📝 Configure**: `cap create` to scaffold and refine the YAML inputs/outputs
+2. **🔁 Materialise**: `cap generate` to sync Python/tests/deploy with the YAML
+3. **🔧 Implement**: Add your calculation logic within the user-code markers
+4. **🧪 Test**: Use dashboard and API for interactive development
+5. **✅ Validate**: Run generated test suite
+6. **🚀 Deploy**: Use generated deployment script for Posit Connect
 
 ## 🔧 CLI Reference
 
 ```bash
 # Metric Management
-metrics-hub create NAME [OPTIONS]     # Create new metric
-metrics-hub list                      # List all metrics
+cap create NAME [OPTIONS]     # Create new metric
+cap generate METRIC_ID [OPTIONS]  # Materialise implementation from YAML config
+cap list                      # List all metrics
 
 # Development Tools  
-metrics-hub dashboard [OPTIONS]       # Launch testing dashboard
-metrics-hub api [OPTIONS]             # Launch API server
+cap dashboard [OPTIONS]       # Launch testing dashboard
+cap api [OPTIONS]             # Launch API server
 
 # Help & Information
-metrics-hub --help                    # Show help
-metrics-hub COMMAND --help            # Command-specific help
+cap --help                    # Show help
+cap COMMAND --help            # Command-specific help
 ```
 
 ### Create Options
 
 ```bash
-metrics-hub create "My Metric" \
+cap create "My Metric" \
     --category CATEGORY \              # Metric category
     --description TEXT \               # Metric description  
     --template TYPE \                  # Template: simple|dataframe|plotly|multi_source
@@ -380,7 +384,7 @@ pytest
 pytest tests/test_your_metric.py
 
 # Test with coverage
-pytest --cov=metrics_hub --cov-report=html
+pytest --cov=cap --cov-report=html
 
 # Integration tests
 pytest tests/integration/
@@ -443,8 +447,8 @@ def calculate_sales_forecast(region: str, product: str, horizon: int):
 
 ❌ **Import Errors**
 ```bash
-# Ensure metrics-hub is installed
-pip install metrics-hub
+# Ensure cap is installed
+pip install cap
 
 # Check Python path
 export PYTHONPATH="${PYTHONPATH}:$(pwd)"
@@ -471,7 +475,7 @@ fig.add_trace(go.Scatter(x=[1,2,3], y=[1,2,3]))
 
 ```bash
 # Enable verbose logging
-metrics-hub dashboard --debug
+cap dashboard --debug
 
 # Check API responses  
 curl -v http://localhost:8000/calculate/your_metric_id/html
@@ -488,11 +492,11 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🙋‍♀️ Support
 
 - 📧 **Email**: support@metricshub.dev
-- 💬 **Issues**: [GitHub Issues](https://github.com/yourusername/metrics-hub/issues)
-- 📖 **Documentation**: [Full Documentation](https://metrics-hub.readthedocs.io/)
+- 💬 **Issues**: [GitHub Issues](https://github.com/yourusername/cap/issues)
+- 📖 **Documentation**: [Full Documentation](https://cap.readthedocs.io/)
 
 ---
 
 <div align="center">
-<b>🚀 Start building powerful metrics today with Metrics Hub! 🚀</b>
+<b>🚀 Start building powerful metrics today with Commercial Analytical Platform (CAP)! 🚀</b>
 </div>

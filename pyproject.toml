@@ -3,12 +3,12 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "metrics-hub"
+name = "cap"
 version = "1.0.0"
-description = "Streamlined metric development and deployment package with rich outputs"
+description = "Commercial Analytical Platform for developing and deploying metrics with rich outputs"
 readme = "README.md"
 authors = [
-    {name = "Metrics Hub Team", email = "team@metricshub.dev"},
+    {name = "CAP Team", email = "contact@cap.dev"},
 ]
 license = {text = "MIT"}
 requires-python = ">=3.11"
@@ -37,25 +37,40 @@ dependencies = [
 [project.optional-dependencies]
 dashboard = ["dash>=2.14.0", "nbformat>=4.2.0"]
 database = ["sqlalchemy>=2.0.0", "psycopg2-binary>=2.9.0"]
-api = ["requests>=2.31.0"]
+api = ["requests>=2.31.0", "httpx>=0.25.0"]
 dev = [
     "pytest>=7.3.0",
     "pytest-asyncio>=0.21.0",
+    "pytest-cov>=4.1.0",
     "black>=23.3.0",
     "ruff>=0.0.270",
+    "httpx>=0.25.0",
 ]
-all = ["metrics-hub[dashboard,database,api,dev]"]
+performance = ["polars>=0.20.0"]
+all = [
+    "dash>=2.14.0",
+    "nbformat>=4.2.0",
+    "sqlalchemy>=2.0.0",
+    "psycopg2-binary>=2.9.0",
+    "requests>=2.31.0",
+    "pytest>=7.3.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-cov>=4.1.0",
+    "black>=23.3.0",
+    "ruff>=0.0.270",
+    "polars>=0.20.0",
+]
 
 [project.urls]
-Homepage = "https://github.com/yourusername/metrics-hub"
-Repository = "https://github.com/yourusername/metrics-hub"
-Documentation = "https://metrics-hub.readthedocs.io/"
+Homepage = "https://github.com/yourusername/cap"
+Repository = "https://github.com/yourusername/cap"
+Documentation = "https://cap.readthedocs.io/"
 
 [project.scripts]
-metrics-hub = "metrics_hub.scaffolding.cli:cli"
+cap = "cap.scaffolding.cli:cli"
 
 [tool.hatch.build.targets.wheel]
-packages = ["metrics_hub"]
+packages = ["cap"]
 
 [tool.black]
 line-length = 88
@@ -71,3 +86,6 @@ ignore = ["E501", "B008"]
 minversion = "7.0"
 testpaths = ["tests"]
 asyncio_mode = "auto"
+markers = [
+    "slow: mark test as slow",
+]
